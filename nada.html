@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>List Nada · BSRP Mods</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body {
+    font-family: -apple-system, 'Inter', BlinkMacSystemFont, sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    background: #08080f;
+    color: rgba(255,255,255,0.92);
+    overflow-x: hidden;
+  }
+  .bg-orbs { position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden; }
+  .orb { position:absolute; border-radius:50%; filter:blur(90px); opacity:0.35; }
+  .orb-1 { width:600px;height:600px;background:radial-gradient(circle,#7c3aed,transparent 70%);top:-200px;left:-150px; }
+  .orb-2 { width:500px;height:500px;background:radial-gradient(circle,#0ea5e9,transparent 70%);top:20%;right:-100px; }
+  .orb-3 { width:400px;height:400px;background:radial-gradient(circle,#f59e0b,transparent 70%);bottom:10%;left:20%; }
+  .orb-4 { width:350px;height:350px;background:radial-gradient(circle,#ec4899,transparent 70%);bottom:-100px;right:10%; }
+
+  .glass {
+    background:rgba(255,255,255,0.07);
+    backdrop-filter:blur(28px) saturate(1.8);
+    -webkit-backdrop-filter:blur(28px) saturate(1.8);
+    border:1px solid rgba(255,255,255,0.14);
+    border-top-color:rgba(255,255,255,0.28);
+    border-left-color:rgba(255,255,255,0.20);
+    box-shadow:0 1px 0 rgba(255,255,255,0.12) inset,0 -1px 0 rgba(0,0,0,0.15) inset,0 8px 32px rgba(0,0,0,0.35),0 2px 8px rgba(0,0,0,0.2);
+  }
+  .glass-subtle {
+    background:rgba(255,255,255,0.04);
+    backdrop-filter:blur(16px) saturate(1.6);
+    -webkit-backdrop-filter:blur(16px) saturate(1.6);
+    border:1px solid rgba(255,255,255,0.09);
+    border-top-color:rgba(255,255,255,0.18);
+    box-shadow:0 1px 0 rgba(255,255,255,0.08) inset,0 4px 16px rgba(0,0,0,0.25);
+  }
+
+  .page { position:relative;z-index:1;max-width:920px;margin:0 auto;padding:52px 20px 72px; }
+
+  /* Header */
+  .header { text-align:center;margin-bottom:36px; }
+  .brand-badge {
+    display:inline-flex;align-items:center;gap:6px;padding:5px 14px;
+    border-radius:999px;font-size:11px;font-weight:500;letter-spacing:0.1em;
+    text-transform:uppercase;color:rgba(255,255,255,0.7);margin-bottom:16px;
+    background:rgba(255,255,255,0.08);backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.15);
+  }
+  .brand-badge::before { content:'';width:6px;height:6px;border-radius:50%;background:#f59e0b;box-shadow:0 0 8px #f59e0b; }
+  .header-title {
+    font-size:clamp(36px,7vw,58px);font-weight:800;line-height:1;letter-spacing:-0.03em;
+    background:linear-gradient(135deg,#fff 30%,rgba(255,255,255,0.5) 100%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px;
+  }
+  .header-sub { font-size:14px;color:rgba(255,255,255,0.4);letter-spacing:0.08em;text-transform:uppercase; }
+
+  /* Pack tabs */
+  .pack-tabs {
+    display:flex;justify-content:center;gap:8px;margin:28px 0 32px;flex-wrap:wrap;
+  }
+  .pack-tab {
+    padding:8px 18px;border-radius:999px;font-size:13px;font-weight:500;cursor:pointer;
+    background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+    color:rgba(255,255,255,0.5);transition:all 0.2s;
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  }
+  .pack-tab:hover { background:rgba(255,255,255,0.09);color:rgba(255,255,255,0.75); }
+  .pack-tab.active {
+    background:rgba(139,92,246,0.2);border-color:rgba(139,92,246,0.5);
+    border-top-color:rgba(167,139,250,0.7);color:rgba(221,214,254,0.95);
+    box-shadow:0 0 0 1px rgba(139,92,246,0.2),0 4px 16px rgba(139,92,246,0.15);
+  }
+
+  /* Stats */
+  .stats { display:flex;justify-content:center;gap:10px;margin-bottom:28px;flex-wrap:wrap; }
+  .stat { display:flex;align-items:center;gap:10px;border-radius:16px;padding:12px 20px; }
+  .stat-num {
+    font-size:24px;font-weight:700;
+    background:linear-gradient(135deg,#fff,rgba(255,255,255,0.65));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;
+  }
+  .stat-label { font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.07em; }
+
+  /* Search */
+  .search-wrap { display:flex;justify-content:center;margin-bottom:32px; }
+  .search-inner { position:relative;width:100%;max-width:460px; }
+  .search-inner svg { position:absolute;left:16px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,0.35);pointer-events:none; }
+  #searchBox {
+    width:100%;padding:13px 18px 13px 44px;border-radius:16px;font-family:inherit;font-size:14px;
+    color:rgba(255,255,255,0.88);outline:none;transition:box-shadow 0.2s,border-color 0.2s;
+    background:rgba(255,255,255,0.07);backdrop-filter:blur(28px) saturate(1.8);
+    -webkit-backdrop-filter:blur(28px) saturate(1.8);border:1px solid rgba(255,255,255,0.14);
+    border-top-color:rgba(255,255,255,0.28);
+    box-shadow:0 1px 0 rgba(255,255,255,0.12) inset,0 8px 32px rgba(0,0,0,0.35);
+  }
+  #searchBox::placeholder { color:rgba(255,255,255,0.3); }
+  #searchBox:focus {
+    border-color:rgba(139,92,246,0.7);border-top-color:rgba(167,139,250,0.9);
+    box-shadow:0 1px 0 rgba(255,255,255,0.12) inset,0 0 0 3px rgba(139,92,246,0.2),0 8px 32px rgba(0,0,0,0.35);
+  }
+
+  /* Pack panels */
+  .pack-panel { display:none; }
+  .pack-panel.active { display:block; }
+
+  /* Section */
+  .section {
+    margin-bottom:22px;border-radius:22px;padding:18px 18px 14px;
+    animation:fadeUp 0.4s ease both;
+  }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+
+  .section-head {
+    display:flex;align-items:center;justify-content:space-between;
+    padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.07);
+  }
+  .section-left { display:flex;align-items:center;gap:10px; }
+  .section-icon {
+    width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+    font-size:14px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.18);flex-shrink:0;
+  }
+  .section-name { font-size:15px;font-weight:600;color:rgba(255,255,255,0.9);letter-spacing:-0.01em; }
+  .section-count {
+    font-size:11px;color:rgba(255,255,255,0.4);background:rgba(255,255,255,0.07);
+    border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:3px 10px;
+  }
+
+  /* Song grid */
+  .song-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px; }
+  .song-item {
+    display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;
+    cursor:pointer;transition:background 0.18s,border-color 0.18s,transform 0.18s,box-shadow 0.18s;
+    text-decoration:none;color:inherit;overflow:hidden;
+    background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);position:relative;
+  }
+  .song-item::before {
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(135deg,rgba(255,255,255,0.04) 0%,transparent 60%);
+    pointer-events:none;border-radius:inherit;
+  }
+  .song-item:hover {
+    background:rgba(255,255,255,0.10);border-color:rgba(255,255,255,0.2);
+    border-top-color:rgba(255,255,255,0.32);transform:translateY(-1px) translateX(2px);
+    box-shadow:0 4px 16px rgba(0,0,0,0.3),0 1px 0 rgba(255,255,255,0.1) inset;
+  }
+  .song-item.selected {
+    background:rgba(139,92,246,0.18);border-color:rgba(139,92,246,0.5);
+    border-top-color:rgba(167,139,250,0.7);
+    box-shadow:0 0 0 1px rgba(139,92,246,0.25),0 4px 20px rgba(139,92,246,0.2),0 1px 0 rgba(255,255,255,0.12) inset;
+    transform:translateY(-1px) translateX(2px);
+  }
+  .song-item.selected .song-dot { background:#a78bfa;box-shadow:0 0 8px #a78bfa,0 0 16px rgba(167,139,250,0.5); }
+  .song-item.selected .song-num { color:rgba(196,181,253,0.7); }
+  .song-item.selected .song-name { color:rgba(221,214,254,0.95); }
+  .song-item.module-link {
+    background:rgba(139,92,246,0.1);border-color:rgba(139,92,246,0.25);border-top-color:rgba(167,139,250,0.4);
+    cursor:pointer;
+  }
+  .song-item.module-link:hover {
+    background:rgba(139,92,246,0.18);border-color:rgba(139,92,246,0.45);
+    box-shadow:0 4px 20px rgba(139,92,246,0.2),0 1px 0 rgba(255,255,255,0.12) inset;
+  }
+  .song-item.module-link .song-name { color:rgba(196,181,253,0.95); }
+  .song-item.module-link .song-dot { background:#a78bfa;box-shadow:0 0 6px rgba(167,139,250,0.6); }
+  .song-num { font-size:10px;color:rgba(255,255,255,0.25);min-width:18px;font-variant-numeric:tabular-nums;flex-shrink:0;font-weight:500; }
+  .song-dot { width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,0.25);flex-shrink:0;transition:background 0.18s,box-shadow 0.18s; }
+  .song-item:hover .song-dot { background:#a78bfa;box-shadow:0 0 6px #a78bfa; }
+  .song-name { font-size:13px;font-weight:500;color:rgba(255,255,255,0.82);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3; }
+  .mod-tag {
+    margin-left:auto;flex-shrink:0;font-size:10px;font-weight:500;
+    background:rgba(139,92,246,0.2);border:1px solid rgba(139,92,246,0.35);
+    color:rgba(196,181,253,0.9);border-radius:6px;padding:2px 6px;
+  }
+
+  /* Footer */
+  .footer {
+    margin-top:48px;padding:20px 0 0;border-top:1px solid rgba(255,255,255,0.06);
+    display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;
+  }
+  .footer-brand { font-size:13px;font-weight:600;color:rgba(255,255,255,0.55);letter-spacing:0.05em; }
+  .footer-sub { font-size:11px;color:rgba(255,255,255,0.25);letter-spacing:0.06em; }
+
+  @media(max-width:480px){.song-grid{grid-template-columns:1fr 1fr}}
+  @media(max-width:320px){.song-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="bg-orbs">
+  <div class="orb orb-1"></div><div class="orb orb-2"></div>
+  <div class="orb orb-3"></div><div class="orb orb-4"></div>
+</div>
+<div class="page">
+
+  <header class="header">
+    <div class="brand-badge">BSRP Mods Collection</div>
+    <h1 class="header-title">List Nada</h1>
+    <p class="header-sub">Koleksi nada lengkap · 4 pack</p>
+  </header>
+
+  <!-- Pack selector tabs -->
+  <div class="pack-tabs">
+    <div class="pack-tab active" data-pack="p36">36 NOT</div>
+    <div class="pack-tab" data-pack="p24">24 NOT</div>
+    <div class="pack-tab" data-pack="p18">18 NOT</div>
+    <div class="pack-tab" data-pack="p12">12 NOT</div>
+  </div>
+
+  <!-- Stats per pack (updated by JS) -->
+  <div class="stats">
+    <div class="stat glass"><div><div class="stat-num" id="stat-songs">76</div><div class="stat-label">Total Lagu</div></div></div>
+    <div class="stat glass"><div><div class="stat-num" id="stat-modules">2</div><div class="stat-label">Module</div></div></div>
+  </div>
+
+  <!-- Search -->
+  <div class="search-wrap">
+    <div class="search-inner">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="searchBox" placeholder="Cari nada atau lagu...">
+    </div>
+  </div>
+
+  <!-- ══════════════ 36 NOT ══════════════ -->
+  <div class="pack-panel active" id="p36">
+    <div class="section glass">
+      <div class="section-head">
+        <div class="section-left"><div class="section-icon">🎵</div><span class="section-name">Module</span></div>
+        <span class="section-count">2</span>
+      </div>
+      <div class="song-grid">
+        <div class="song-item module-link" onclick="scrollTo('okdj-36')"><span class="song-num">01</span><div class="song-dot"></div><span class="song-name">OKDJ Module</span><span class="mod-tag">[36]</span></div>
+        <div class="song-item module-link" onclick="scrollTo('azk-36')"><span class="song-num">02</span><div class="song-dot"></div><span class="song-name">AZKduino Module</span><span class="mod-tag">[36]</span></div>
+      </div>
+    </div>
+
+    <div class="section glass-subtle" id="okdj-36">
+      <div class="section-head">
+        <div class="section-left"><div class="section-icon">🎵</div><span class="section-name">OKDJ</span></div>
+        <span class="section-count">39 lagu</span>
+      </div>
+      <div class="song-grid">
+        <div class="song-item"><span class="song-num">01</span><div class="song-dot"></div><span class="song-name">Jeger</span></div>
+        <div class="song-item"><span class="song-num">02</span><div class="song-dot"></div><span class="song-name">Kursya Aurgham</span></div>
+        <div class="song-item"><span class="song-num">03</span><div class="song-dot"></div><span class="song-name">Aishiteru 2</span></div>
+        <div class="song-item"><span class="song-num">04</span><div class="song-dot"></div><span class="song-name">Ini Rindu</span></div>
+        <div class="song-item"><span class="song-num">05</span><div class="song-dot"></div><span class="song-name">Janda Bodong Dut Dut</span></div>
+        <div class="song-item"><span class="song-num">06</span><div class="song-dot"></div><span class="song-name">Janda Bodong</span></div>
+        <div class="song-item"><span class="song-num">07</span><div class="song-dot"></div><span class="song-name">Karmila</span></div>
+        <div class="song-item"><span class="song-num">08</span><div class="song-dot"></div><span class="song-name">Tak Berdaya</span></div>
+        <div class="song-item"><span class="song-num">09</span><div class="song-dot"></div><span class="song-name">Seperti Mati Lampu</span></div>
+        <div class="song-item"><span class="song-num">10</span><div class="song-dot"></div><span class="song-name">Jangan Tunggu Lama Lama</span></div>
+        <div class="song-item"><span class="song-num">11</span><div class="song-dot"></div><span class="song-name">Jangan Tunggu Lama Lama V2</span></div>
+        <div class="song-item"><span class="song-num">12</span><div class="song-dot"></div><span class="song-name">Luka Sekerat Rasa</span></div>
+        <div class="song-item"><span class="song-num">13</span><div class="song-dot"></div><span class="song-name">Menteri Durmagati</span></div>
+        <div class="song-item"><span class="song-num">14</span><div class="song-dot"></div><span class="song-name">Orang Baru Lebeh Gacor</span></div>
+        <div class="song-item"><span class="song-num">15</span><div class="song-dot"></div><span class="song-name">Rapuh</span></div>
+        <div class="song-item"><span class="song-num">16</span><div class="song-dot"></div><span class="song-name">Sedia Aku Sebelum Hujan</span></div>
+        <div class="song-item"><span class="song-num">17</span><div class="song-dot"></div><span class="song-name">Ropang</span></div>
+        <div class="song-item"><span class="song-num">18</span><div class="song-dot"></div><span class="song-name">Spontan Tanpa Uhuy</span></div>
+        <div class="song-item"><span class="song-num">19</span><div class="song-dot"></div><span class="song-name">Suasana Hari Raya</span></div>
+        <div class="song-item"><span class="song-num">20</span><div class="song-dot"></div><span class="song-name">Tamu Undangan</span></div>
+        <div class="song-item"><span class="song-num">21</span><div class="song-dot"></div><span class="song-name">Taragak Pulang</span></div>
+        <div class="song-item"><span class="song-num">22</span><div class="song-dot"></div><span class="song-name">Cinta Kita</span></div>
+        <div class="song-item"><span class="song-num">23</span><div class="song-dot"></div><span class="song-name">Ego Wong Tuo</span></div>
+        <div class="song-item"><span class="song-num">24</span><div class="song-dot"></div><span class="song-name">Jangan Paksa Rindu</span></div>
+        <div class="song-item"><span class="song-num">25</span><div class="song-dot"></div><span class="song-name">Pudar</span></div>
+        <div class="song-item"><span class="song-num">26</span><div class="song-dot"></div><span class="song-name">Sejuta</span></div>
+        <div class="song-item"><span class="song-num">27</span><div class="song-dot"></div><span class="song-name">Sepanjang Jalan Kenangan</span></div>
+        <div class="song-item"><span class="song-num">28</span><div class="song-dot"></div><span class="song-name">Cinta Pertama</span></div>
+        <div class="song-item"><span class="song-num">29</span><div class="song-dot"></div><span class="song-name">Cundamani</span></div>
+        <div class="song-item"><span class="song-num">30</span><div class="song-dot"></div><span class="song-name">Lamunan</span></div>
+        <div class="song-item"><span class="song-num">31</span><div class="song-dot"></div><span class="song-name">Rindu Aku Rindu Kamu</span></div>
+        <div class="song-item"><span class="song-num">32</span><div class="song-dot"></div><span class="song-name">Mengular</span></div>
+        <div class="song-item"><span class="song-num">33</span><div class="song-dot"></div><span class="song-name">Tunggal Eka</span></div>
+        <div class="song-item"><span class="song-num">34</span><div class="song-dot"></div><span class="song-name">Kopi Dangdut</span></div>
+        <div class="song-item"><span class="song-num">35</span><div class="song-dot"></div><span class="song-name">Basah - Basah</span></div>
+        <div class="song-item"><span class="song-num">36</span><div class="song-dot"></div><span class="song-name">Arateul</span></div>
+        <div class="song-item"><span class="song-num">37</span><div class="song-dot"></div><span class="song-name">Wulan Merindu</span></div>
+        <div class="song-item"><span class="song-num">38</span><div class="song-dot"></div><span class="song-name">Negoro Angin</span></div>
+        <div class="song-item"><span class="song-num">39</span><div class="song-dot"></div><span class="song-name">Gadis Kalimantan</span></div>
+      </div>
+    </div>
+
+    <div class="section glass-subtle" id="azk-36">
+      <div class="section-head">
+        <div class="section-left"><div class="section-icon">🎵</div><span class="section-name">AZK</span></div>
+        <span class="section-count">31 lagu</span>
+      </div>
+      <div class="song-grid">
+        <div class="song-item"><span class="song-num">01</span><div class="song-dot"></div><span class="song-name">Cinta Pertama</span></div>
+        <div class="song-item"><span class="song-num">02</span><div class="song-dot"></div><span class="song-name">Cinta Tak Terbatas Waktu</span></div>
+        <div class="song-item"><span class="song-num">03</span><div class="song-dot"></div><span class="song-name">Kasih Aba Aba</span></div>
+        <div class="song-item"><span class="song-num">04</span><div class="song-dot"></div><span class="song-name">Birunya Cinta</span></div>
+        <div class="song-item"><span class="song-num">05</span><div class="song-dot"></div><span class="song-name">Dora Dora</span></div>
+        <div class="song-item"><span class="song-num">06</span><div class="song-dot"></div><span class="song-name">Dracin/CEO</span></div>
+        <div class="song-item"><span class="song-num">07</span><div class="song-dot"></div><span class="song-name">Last Of Mohicans</span></div>
+        <div class="song-item"><span class="song-num">08</span><div class="song-dot"></div><span class="song-name">Heavy Rotation</span></div>
+        <div class="song-item"><span class="song-num">09</span><div class="song-dot"></div><span class="song-name">Jadikan Aku Kedua</span></div>
+        <div class="song-item"><span class="song-num">10</span><div class="song-dot"></div><span class="song-name">Janda Bodong</span></div>
+        <div class="song-item"><span class="song-num">11</span><div class="song-dot"></div><span class="song-name">Klebus</span></div>
+        <div class="song-item"><span class="song-num">12</span><div class="song-dot"></div><span class="song-name">Konco Mesra</span></div>
+        <div class="song-item"><span class="song-num">13</span><div class="song-dot"></div><span class="song-name">Ketlinholic</span></div>
+        <div class="song-item"><span class="song-num">14</span><div class="song-dot"></div><span class="song-name">Nasi Padang</span></div>
+        <div class="song-item"><span class="song-num">15</span><div class="song-dot"></div><span class="song-name">Mungkin Nanti</span></div>
+        <div class="song-item"><span class="song-num">16</span><div class="song-dot"></div><span class="song-name">Ngga Dulu</span></div>
+        <div class="song-item"><span class="song-num">17</span><div class="song-dot"></div><span class="song-name">Ngamen 4</span></div>
+        <div class="song-item"><span class="song-num">18</span><div class="song-dot"></div><span class="song-name">Orang Baru Lebeh Gacor</span></div>
+        <div class="song-item"><span class="song-num">19</span><div class="song-dot"></div><span class="song-name">Pengantin Baru</span></div>
+        <div class="song-item"><span class="song-num">20</span><div class="song-dot"></div><span class="song-name">Perahu Layar</span></div>
+        <div class="song-item"><span class="song-num">21</span><div class="song-dot"></div><span class="song-name">Salahmu Sendiri</span></div>
+        <div class="song-item"><span class="song-num">22</span><div class="song-dot"></div><span class="song-name">Sedia Aku Sebelum Hujan</span></div>
+        <div class="song-item"><span class="song-num">23</span><div class="song-dot"></div><span class="song-name">Sejuta</span></div>
+        <div class="song-item"><span class="song-num">24</span><div class="song-dot"></div><span class="song-name">Sigar</span></div>
+        <div class="song-item"><span class="song-num">25</span><div class="song-dot"></div><span class="song-name">Waktu Sahar</span></div>
+        <div class="song-item"><span class="song-num">26</span><div class="song-dot"></div><span class="song-name">Tanteholic</span></div>
+        <div class="song-item"><span class="song-num">27</span><div class="song-dot"></div><span class="song-name">One In A Million</span></div>
+        <div class="song-item"><span class="song-num">28</span><div class="song-dot"></div><span class="song-name">Gulali</span></div>
+        <div class="song-item"><span class="song-num">29</span><div class="song-dot"></div><span class="song-name">Orang Baru Lebeh Gacor Dut Dut</span></div>
+        <div class="song-item"><span class="song-num">30</span><div class="song-dot"></div><span class="song-name">Janda Bodong V2</span></div>
+        <div class="song-item"><span class="song-num">31</span><div class="song-dot"></div><span class="song-name">My Heart</span></div>
+      </div>
+    </div>
+
+    <div class="section glass-subtle">
+      <div class="section-head">
+        <div class="section-left"><div class="section-icon">🎵</div><span class="section-name">Inu</span></div>
+        <span class="section-count">4 lagu</span>
+      </div>
+      <div class="song-grid">
+        <div class="song-item"><span class="song-num">01</span><div class="song-dot"></div><span class="song-name">Kicau Mania</span></div>
+        <div class="song-item"><span class="song-num">02</span><div class="song-dot"></div><span class="song-name">Tanpo Hubungan</span></div>
+        <div class="song-item"><span class="song-num">03</span><div class="song-dot"></div><span class="song-name">P P Apa</span></div>
+        <div class="song-item"><span class="song-num">04</span><div class="song-dot"></div><span class="song-name">Bapakku NU</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ 24 NOT ══════════════ -->
+  <div class="pack-panel" id="p24">
+    <div class="section glass">
+      <div class="section-head">
+        <div class="section-left"><div class="section-icon">🎵</div><span class="section-name">Module</span></div>
+        <span class="section-count">3</span>
+      </div>
+      <div class="song-grid">
+        <div class="song-item module-link" onclick="scrollTo('azk-24')"><span class="song-num">01</span><div class="song-dot"></div><span class="song-name">AZKduino Module</span><span class="mod-tag">[24]</span></div>
+        <div class="song-item module-link" onclick="scrollTo('sinyo-24')"><span class="song-num">02</span><div class="song-dot"></div><span class="song-name">Sinyo Module</span><span class="mod-tag">[24]</span></div>
+        <div class="song-item module-link" onclick="scrollTo('zeta-24')"><span class="song-num">03</span><div class="song-dot"></div><span class="song-name">Zeta Module</span><span class="mod-tag">[24]</span></div>
+      </div>
+    </div>
+
+    <div class="section glass-subtle" id="azk-24">
+      <div class="section-head">
+        <div class="section-left"><div class="section-icon">🎵</div><span class="section-name">AZKduino</span></div>
+        <span class="section-count">23 lagu</span>
+      </div>
+      <div class="song-grid">
+        <div class="song-item"><span class="song-num">01</span><div class="song-dot"></div><span class="song-name">Bahtera Cinta</span></div>
+        <div class="song-item"><span class="song-num">02</span><div class="song-dot"></div><span class="song-name">Bulan Ngomong</span></div>
+        <div class="song-item"><span class="song-num">03</span><div class="song-dot"></div><span class="song-name">Buruh Tani</span></div>
+        <div class="song-item"><span class="song-num">04</span><div class="song-dot"></div><span class="song-name">Ding Dong</span></div>
+        <div class="song-item"><span class="song-num">05</span><div class="song-dot"></div><span class="song-name">Mas Joko</span></div>
+        <div class="song-item"><span class="song-num">06</span><div class="song-dot"></div><span class="song-name">Lathi</span></div>
+        <div class="song-item"><span class="song-num">07</span><div class="song-dot"></div><span class="song-name">Maya</span></div>
+        <div class="song-item"><span class="song-num">08</span><div class="song-dot"></div><span class="song-name">Monolog</span></div>
+        <div class="song-item"><span class="song-num">09</span><div class="song-dot"></div><span class="song-name">Pertemuan</span></div>
+        <div class="song-item"><span class="song-num">10</span><div class="song-dot"></div><span class="song-name">Rarera</span></div>
+        <div class="song-item"><span class="song-num">11</span><div class="song-dot"></div><span class="song-name">Rush E</span></div>
+        <div class="song-item"><span class="song-num">12</span><div class="song-dot"></div><span class="song-name">Sinarengan</span></div>
+        <div class="song-item"><span class="song-num">13</span><div class="song-dot"></div><span class="song-name">Takkan Pisah</span></div>
+        <div class="song-item"><span class="song-num">14</span><div class="song-dot"></div><span class="song-name">Tabola Bale</span></div>
+        <div class="song-item"><span class="song-num">15</span><div class="song-dot"></div><span class="song-name">Trouble Is A Friend</span></div>
+        <div class="song-item"><span class="song-num">16</span><div class="song-dot"></div><span class="song-name">Velocity Bernyanyi</span></div>
+        <div class="song-item"><span class="song-num">17</span><div class="song-dot"></div><span class="song-name">Virus</span></div>
+        <div class="song-item"><span class="song-num">18</span><div class="song-dot"></div><span class="song-name">Jika Itu Yang Terbaik</span></div>
+        <div class="song-item"><span class="song-num">19</span><div class="song-dot"></div><span class="song-name">Cinematic Thai</span></div>
+        <div class="song-item"><span class="song-num">20</span><div class="song-dot"></div><span class="song-name">Janda Bodong</span></div>
+        <div class="song-item"><span class="song-num">21</span><div class="song-dot"></div><span class="song-name">Mozart</span></div>
+        <div class="song-item"><span class="song-num">22</span><div class="song-dot"></div><span class="song-name">Oplosan</span></div>
+        <div class="song-item"><span class="song-num">23</span><div class="song-dot"></div><span class="song-name">Tembak Langit</span></div>
+      </div>
+    </div>
+
+    <div class="section glass-subtle" id="sinyo-24">
+      <div class="section-head">
+        <div class="section-left"><div class="section-icon">🎵</div><span class="section-name">Sinyo</span></div>
+        <span class="section-count">24 lagu</span>
+      </div>
+      <div class="song-grid">
+        <div class="song-item"><span class="song-num">01</span><div class="song-dot"></div><span class="song-name">Aishiteru</span></div>
+        <div class="song-item"><span class="song-num">02</span><div class="song-dot"></div><span class="song-name">DJ Baby Family</span></div>
+        <div class="song-item"><span class="song-num">03</span><div class="song-dot"></div><span class="song-name">Bintang Kehidupan</span></div>
+        <div class="song-item"><span class="song-num">04</span><div class="song-dot"></div><span class="song-name">Bang Toyib</span></div>
+        <div class="song-item"><span class="song-num">05</span><div class="song-dot"></div><span class="song-name">Care Bebek</span></div>
+        <div class="song-item"><span class="song-num">06</span><div class="song-dot"></div><span class="song-name">Cinta Kita</span></div>
+        <div class="song-item"><span class="song-num">07</span><div class="song-dot"></div><span class="song-name">Cinta Tak Terbatas Waktu</span></div>
+        <div class="song-item"><span class="song-num">08</span><div class="song-dot"></div><span class="song-name">Dora Dora</span></div>
+        <div class="song-item"><span class="song-num">09</span><div class="song-dot"></div><span class="song-name">Eeeee Aaaa</span></div>
+        <div class="song-item"><span class="song-num">10</span><div class="song-dot"></div><span class="song-name">1+1 Gok Gok</span></div>
+        <div class="song-item"><span class="song-num">11</span><div class="song-dot"></div><span class="song-name">Goyang Dumang</span></div>
+        <div class="song-item"><span class="song-num">12</span><div class="song-dot"></div><span class="song-name">Jauh Ko Pergi</span></div>
+        <div class="song-item"><span class="song-num">13</span><div class="song-dot"></div><span class="song-name">Jangan Tunggu Lama Lama</span></div>
+        <div class="song-item"><span class="song-num">14</span><div class="song-dot"></div><span class="song-name">Kalah Materi</span></div>
+        <div class="song-item"><span class="song-num">15</span><div class="song-dot"></div><span class="song-name">MBG</span></div>
+        <div class="song-item"><span class="song-num">16</span><div class="song-dot"></div><span class="song-name">Mencari Alasan</span></div>
+        <div class="song-item"><span class="song-num">17</span><div class="song-dot"></div><span class="song-name">Ngga Dulu</span></div>
+        <div class="song-item"><span class="song-num">18</span><div class="song-dot"></div><span class="song-name">Orang Baru Lebeh Gacor</span></div>
+        <div class="song-item"><span class="song-num">18</span><div class="song-dot"></div><span class="song-name">One In A Million</span></div>
+        <div class="song-item"><span class="song-num">19</span><div class="song-dot"></div><span class="song-name">Papa Liat Aku Bernyanyi</span></div>
+        <div class="song-item"><span class="song-num">20</span><div class="song-dot"></div><span class="song-name">Pudar</span></div>
+        <div class="song-item"><span class="song-num">21</span><div class="song-dot"></div><span class="song-name">Selebritis Bandung</span></div>
+        <div class="song-item"><span class="song-num">22</span><div class="song-dot"></div><span class="song-name">SpongeBob Skipping School</span></div>
+        <div class="song-item"><span class="song-num">23</span><div class="song-dot"></div><span class="song-name">Tanteholic</span></div>
+        <div class="song-item"><span class="song-num">24</span><div class="song-dot"></div><span class="song-name">Ya Allah Lindungi Bilqis</span></div>
+      </div>
+    </div>
+
+    <div class="section glass-subtle" id="zeta-24">
+      <div class="section-head">
+        <div class="section-left"><div class="section-icon">🎵</div><span class="section-name">Zeta Project</span></div>
+        <span class="section-count">13 lagu</span>
+      </div>
+      <div class="song-grid">
+        <div class="song-item"><span class="song-num">01</span><div class="song-dot"></div><span class="song-name">Aishiteru</span></div>
+        <div class="song-item"><span class="song-num">02</span><div class="song-dot"></div><span class="song-name">Dear God</span></div>
+        <div class="song-item"><span class="song-num">03</span><div class="song-dot"></div><span class="song-name">Wekuncer</span></div>
+        <div class="song-item"><span class="song-num">04</span><div class="song-dot"></div><span class="song-name">Hitam X Sujang</span></div>
+        <div class="song-item"><span class="song-num">05</span><div class="song-dot"></div><span class="song-name">Jangan Paksa Rindu</span></div>
+        <div class="song-item"><span class="song-num">06</span><div class="song-dot"></div><span class="song-name">Seperti Mati Lampu</span></div>
+        <div class="song-item"><span class="song-num">07</span><div class="song-dot"></div><span class="song-name">Cinta Kita</span></div>
+        <div class="song-item"><span class="song-num">08</span><div class="song-dot"></div><span class="song-name">Cindai</span></div>
+        <div class="song-item"><span class="song-num">09</span><div class="song-dot"></div><span class="song-name">Cinta Tak Terbatas Waktu</span></div>
+        <div class="song-item"><span class="song-num">10</span><div class="song-dot"></div><span class="song-name">DJ Pay</span></div>
+        <div class="song-item"><span class="song-num">11</span><div class="song-dot"></div><span class="song-name">Bapakku NU</span></div>
+        <div class="song-item"><span class="song-num">12</span><div class="song-dot"></div><span class="song-name">P P Apa</span></div>
+        <div class="song-item"><span class="song-num">13</span><div class="song-dot"></div><span class="song-name">Jangan Paksa Rindu Dut Dut</span></div>
+      </div>
+    </div>
+
+    <div class="section glass-subtle">
+      <div class="section-head">
+        <div class="section-left"><div class="section-icon">🎵</div><span class="section-name">Inu Midi</span></div>
+        <span class="section-count">6 lagu</span>
+      </div>
+      <div class="song-grid">
+        <div class="song-item"><span class="song-num">01</span><div class="song-dot"></div><span class="song-name">Bapakku NU</span></div>
+        <div class="song-item"><span class="song-num">02</span><div class="song-dot"></div><span class="song-name">Cinta Mulia</span></div>
+        <div class="song-item"><span class="song-num">03</span><div class="song-dot"></div><span class="song-name">Tunggal Eka</span></div>
+        <div class="song-item"><span class="song-num">04</span><div class="song-dot"></div><span class="song-name">Cinta Pertama</span></div>
+        <div class="song-item"><span class="song-num">05</span><div class="song-dot"></div><span class="song-name">Negoro Angin</span></div>
+        <div class="song-item"><span class="song-num">06</span><div class="song-dot"></div><span class="song-name">P P Apa</span></div>
+      </div>
+    </div>
+
+    <div class="section glass-subtle">
+      <div class="section-head">
+        <div class="section-left"><div class="section-icon">🎵</div><span class="section-name">OKDJ</span></div>
+        <span class="section-count">2 lagu</span>
+      </div>
+      <div class="song-grid">
+        <div class="song-item"><span class="song-num">01</span><div class="song-dot"></div><span class="song-name">Ngapain Repot</span></div>
+        <div class="song-item"><span class="song-num">02</span><div class="song-dot"></div><span class="song-name">Kemesraan</span></div>
+      </div>
+    </div>
+
+    <div class="section glass-subtle">
+      <div class="section-head">
+        <div class="section-left"><div class="section-icon">🎵</div><span class="section-name">Nada Random</span></div>
+        <span class="section-count">3 lagu</span>
+      </div>
+      <div class="song-grid">
+        <div class="song-item"><span class="song-num">01</span><div class="song-dot"></div><span class="song-name">Genit</span></div>
+        <div class="song-item"><span class="song-num">02</span><div class="song-dot"></div><span class="song-name">Ngamen 4</span></div>
+        <div class="song-item"><span class="song-num">03</span><div class="song-dot"></div><span class="song-name">Pagiku Cerah</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ 18 NOT ══════════════ -->
+  <div class="pack-panel" id="p18">
+    <div class="section glass">
+      <div class="section-head">
+        <div class="section-left"><div class="section-icon">🎵</div><span class="section-name">Module</span></div>
+        <span class="section-count">2</span>
+      </div>
+      <div class="song-grid">
+        <div class="song-item module-link" onclick="scrollTo('okdj-18')"><span class="song-num">01</span><div class="song-dot"></div><span class="song-name">OKDJ Module</span><span class="mod-tag">[18]</span></div>
+        <div class="song-item module-link" onclick="scrollTo('zeta-18')"><span class="song-num">02</span><div class="song-dot"></div><span class="song-name">Zeta Module</span><span class="mod-tag">[18]</span></div>
+      </div>
+    </div>
+
+    <div class="section glass-subtle" id="okdj-18">
+      <div class="section-head">
+        <div class="section-left"><div class="section-icon">🎵</div><span class="section-name">OKDJ</span></div>
+        <span class="section-count">18 lagu</span>
+      </div>
+      <div class="song-grid">
+        <div class="song-item"><span class="song-num">01</span><div class="song-dot"></div><span class="song-name">Hari Merdeka</span></div>
+        <div class="song-item"><span class="song-num">02</span><div class="song-dot"></div><span class="song-name">27 Bulan Mei</span></div>
+        <div class="song-item"><span class="song-num">03</span><div class="song-dot"></div><span class="song-name">Antara Kau Dia &amp; Aku</span></div>
+        <div class="song-item"><span class="song-num">04</span><div class="song-dot"></div><span class="song-name">Bahtera Cinta</span></div>
+        <div class="song-item"><span class="song-num">05</span><div class="song-dot"></div><span class="song-name">Bukit Berbunga</span></div>
+        <div class="song-item"><span class="song-num">06</span><div class="song-dot"></div><span class="song-name">Cinta Merah Jambu</span></div>
+        <div class="song-item"><span class="song-num">07</span><div class="song-dot"></div><span class="song-name">Indonesia Pusaka</span></div>
+        <div class="song-item"><span class="song-num">08</span><div class="song-dot"></div><span class="song-name">Kolam Susu</span></div>
+        <div class="song-item"><span class="song-num">09</span><div class="song-dot"></div><span class="song-name">Kau Tercipta Bukan Untukku</span></div>
+        <div class="song-item"><span class="song-num">10</span><div class="song-dot"></div><span class="song-name">Maya</span></div>
+        <div class="song-item"><span class="song-num">11</span><div class="song-dot"></div><span class="song-name">My Heart</span></div>
+        <div class="song-item"><span class="song-num">12</span><div class="song-dot"></div><span class="song-name">Sinarengan</span></div>
+        <div class="song-item"><span class="song-num">13</span><div class="song-dot"></div><span class="song-name">Sisa Sisa Cinta</span></div>
+        <div class="song-item"><span class="song-num">14</span><div class="song-dot"></div><span class="song-name">Stecu</span></div>
+        <div class="song-item"><span class="song-num">15</span><div class="song-dot"></div><span class="song-name">Tanah Air</span></div>
+        <div class="song-item"><span class="song-num">16</span><div class="song-dot"></div><span class="song-name">Tarawangsa X Guuga</span></div>
+        <div class="song-item"><span class="song-num">17</span><div class="song-dot"></div><span class="song-name">Tabola Bale</span></div>
+        <div class="song-item"><span class="song-num">18</span><div class="song-dot"></div><span class="song-name">Tombo Kangen</span></div>
+      </div>
+    </div>
+
+    <div class="section glass-subtle" id="zeta-18">
+      <div class="section-head">
+        <div class="section-left"><div class="section-icon">🎵</div><span class="section-name">Zeta</span></div>
+        <span class="section-count">16 lagu</span>
+      </div>
+      <div class="song-grid">
+        <div class="song-item"><span class="song-num">01</span><div class="song-dot"></div><span class="song-name">Bahtera Cinta</span></div>
+        <div class="song-item"><span class="song-num">02</span><div class="song-dot"></div><span class="song-name">Birunya Cinta</span></div>
+        <div class="song-item"><span class="song-num">03</span><div class="song-dot"></div><span class="song-name">Bukit Berbunga</span></div>
+        <div class="song-item"><span class="song-num">04</span><div class="song-dot"></div><span class="song-name">Es Krim</span></div>
+        <div class="song-item"><span class="song-num">05</span><div class="song-dot"></div><span class="song-name">Hati Siapa Tak Luka</span></div>
+        <div class="song-item"><span class="song-num">06</span><div class="song-dot"></div><span class="song-name">Kau Tercipta Bukan Untukku</span></div>
+        <div class="song-item"><span class="song-num">07</span><div class="song-dot"></div><span class="song-name">Mangu</span></div>
+        <div class="song-item"><span class="song-num">08</span><div class="song-dot"></div><span class="song-name">My Heart</span></div>
+        <div class="song-item"><span class="song-num">09</span><div class="song-dot"></div><span class="song-name">Persib Juara</span></div>
+        <div class="song-item"><span class="song-num">10</span><div class="song-dot"></div><span class="song-name">Sabilulungan</span></div>
+        <div class="song-item"><span class="song-num">11</span><div class="song-dot"></div><span class="song-name">Secangkir Kopi</span></div>
+        <div class="song-item"><span class="song-num">12</span><div class="song-dot"></div><span class="song-name">Takkan Pisah</span></div>
+        <div class="song-item"><span class="song-num">13</span><div class="song-dot"></div><span class="song-name">Zakia</span></div>
+        <div class="song-item"><span class="song-num">14</span><div class="song-dot"></div><span class="song-name">Janda Bodong</span></div>
+        <div class="song-item"><span class="song-num">15</span><div class="song-dot"></div><span class="song-name">Maumere</span></div>
+        <div class="song-item"><span class="song-num">16</span><div class="song-dot"></div><span class="song-name">Tabola Bale</span></div>
+      </div>
+    </div>
+
+    <div class="section glass-subtle">
+      <div class="section-head">
+        <div class="section-left"><div class="section-icon">🎵</div><span class="section-name">AZK</span></div>
+        <span class="section-count">2 lagu</span>
+      </div>
+      <div class="song-grid">
+        <div class="song-item"><span class="song-num">01</span><div class="song-dot"></div><span class="song-name">Mangu</span></div>
+        <div class="song-item"><span class="song-num">02</span><div class="song-dot"></div><span class="song-name">Tia Monika</span></div>
+      </div>
+    </div>
+
+    <div class="section glass-subtle">
+      <div class="section-head">
+        <div class="section-left"><div class="section-icon">🎵</div><span class="section-name">Sinyo</span></div>
+        <span class="section-count">1 lagu</span>
+      </div>
+      <div class="song-grid">
+        <div class="song-item"><span class="song-num">01</span><div class="song-dot"></div><span class="song-name">Zakia</span></div>
+      </div>
+    </div>
+
+    <div class="section glass-subtle">
+      <div class="section-head">
+        <div class="section-left"><div class="section-icon">🎵</div><span class="section-name">Nada Random</span></div>
+        <span class="section-count">3 lagu</span>
+      </div>
+      <div class="song-grid">
+        <div class="song-item"><span class="song-num">01</span><div class="song-dot"></div><span class="song-name">Dan</span></div>
+        <div class="song-item"><span class="song-num">02</span><div class="song-dot"></div><span class="song-name">Sakura</span></div>
+        <div class="song-item"><span class="song-num">03</span><div class="song-dot"></div><span class="song-name">Strobo Mata</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ 12 NOT ══════════════ -->
+  <div class="pack-panel" id="p12">
+    <div class="section glass">
+      <div class="section-head">
+        <div class="section-left"><div class="section-icon">🎵</div><span class="section-name">Module</span></div>
+        <span class="section-count">1</span>
+      </div>
+      <div class="song-grid">
+        <div class="song-item module-link" onclick="scrollTo('azk-12')"><span class="song-num">01</span><div class="song-dot"></div><span class="song-name">AZKduino Module</span><span class="mod-tag">[12]</span></div>
+      </div>
+    </div>
+
+    <div class="section glass-subtle" id="azk-12">
+      <div class="section-head">
+        <div class="section-left"><div class="section-icon">🎵</div><span class="section-name">AZK</span></div>
+        <span class="section-count">42 lagu</span>
+      </div>
+      <div class="song-grid">
+        <div class="song-item"><span class="song-num">01</span><div class="song-dot"></div><span class="song-name">5 Langkah</span></div>
+        <div class="song-item"><span class="song-num">02</span><div class="song-dot"></div><span class="song-name">DJ Aceng</span></div>
+        <div class="song-item"><span class="song-num">03</span><div class="song-dot"></div><span class="song-name">Semua Tentang Kita</span></div>
+        <div class="song-item"><span class="song-num">04</span><div class="song-dot"></div><span class="song-name">Aku Dah Lupa</span></div>
+        <div class="song-item"><span class="song-num">05</span><div class="song-dot"></div><span class="song-name">Anugerah Terindah</span></div>
+        <div class="song-item"><span class="song-num">06</span><div class="song-dot"></div><span class="song-name">APT Thailand</span></div>
+        <div class="song-item"><span class="song-num">07</span><div class="song-dot"></div><span class="song-name">Baby Dont Go</span></div>
+        <div class="song-item"><span class="song-num">08</span><div class="song-dot"></div><span class="song-name">Bukan Cinta Biasa</span></div>
+        <div class="song-item"><span class="song-num">09</span><div class="song-dot"></div><span class="song-name">Bulan &amp; Ksatria</span></div>
+        <div class="song-item"><span class="song-num">10</span><div class="song-dot"></div><span class="song-name">Direject</span></div>
+        <div class="song-item"><span class="song-num">11</span><div class="song-dot"></div><span class="song-name">Canon Rock</span></div>
+        <div class="song-item"><span class="song-num">12</span><div class="song-dot"></div><span class="song-name">Dont Know Why</span></div>
+        <div class="song-item"><span class="song-num">13</span><div class="song-dot"></div><span class="song-name">Gala Gala</span></div>
+        <div class="song-item"><span class="song-num">14</span><div class="song-dot"></div><span class="song-name">Garam &amp; Madu</span></div>
+        <div class="song-item"><span class="song-num">15</span><div class="song-dot"></div><span class="song-name">DJ Plat KT</span></div>
+        <div class="song-item"><span class="song-num">16</span><div class="song-dot"></div><span class="song-name">Kau Tercipta Bukan Untukku</span></div>
+        <div class="song-item"><span class="song-num">17</span><div class="song-dot"></div><span class="song-name">Laila Canggung</span></div>
+        <div class="song-item"><span class="song-num">18</span><div class="song-dot"></div><span class="song-name">Lily</span></div>
+        <div class="song-item"><span class="song-num">19</span><div class="song-dot"></div><span class="song-name">I'm Blue</span></div>
+        <div class="song-item"><span class="song-num">20</span><div class="song-dot"></div><span class="song-name">DJ Melody</span></div>
+        <div class="song-item"><span class="song-num">21</span><div class="song-dot"></div><span class="song-name">Manuk Dadali</span></div>
+        <div class="song-item"><span class="song-num">22</span><div class="song-dot"></div><span class="song-name">Neneku Pahlawanku</span></div>
+        <div class="song-item"><span class="song-num">23</span><div class="song-dot"></div><span class="song-name">Pagiku Cerahku</span></div>
+        <div class="song-item"><span class="song-num">24</span><div class="song-dot"></div><span class="song-name">Pujangga</span></div>
+        <div class="song-item"><span class="song-num">25</span><div class="song-dot"></div><span class="song-name">Play Date</span></div>
+        <div class="song-item"><span class="song-num">26</span><div class="song-dot"></div><span class="song-name">DJ Rian</span></div>
+        <div class="song-item"><span class="song-num">27</span><div class="song-dot"></div><span class="song-name">Sabodo Teuing</span></div>
+        <div class="song-item"><span class="song-num">28</span><div class="song-dot"></div><span class="song-name">Ska Paradise</span></div>
+        <div class="song-item"><span class="song-num">29</span><div class="song-dot"></div><span class="song-name">Squid Game 2</span></div>
+        <div class="song-item"><span class="song-num">30</span><div class="song-dot"></div><span class="song-name">Stecu</span></div>
+        <div class="song-item"><span class="song-num">31</span><div class="song-dot"></div><span class="song-name">Suci Dalam Debu</span></div>
+        <div class="song-item"><span class="song-num">32</span><div class="song-dot"></div><span class="song-name">Hanya Untukmu</span></div>
+        <div class="song-item"><span class="song-num">33</span><div class="song-dot"></div><span class="song-name">Tembak Dor Dor</span></div>
+        <div class="song-item"><span class="song-num">34</span><div class="song-dot"></div><span class="song-name">Velocity</span></div>
+        <div class="song-item"><span class="song-num">35</span><div class="song-dot"></div><span class="song-name">Virus</span></div>
+        <div class="song-item"><span class="song-num">36</span><div class="song-dot"></div><span class="song-name">DJ Work</span></div>
+        <div class="song-item"><span class="song-num">37</span><div class="song-dot"></div><span class="song-name">Rindu Aku Rindu Kamu</span></div>
+        <div class="song-item"><span class="song-num">38</span><div class="song-dot"></div><span class="song-name">Bahtera Cinta</span></div>
+        <div class="song-item"><span class="song-num">39</span><div class="song-dot"></div><span class="song-name">Kasih Aba Aba</span></div>
+        <div class="song-item"><span class="song-num">40</span><div class="song-dot"></div><span class="song-name">ABG Tua</span></div>
+        <div class="song-item"><span class="song-num">41</span><div class="song-dot"></div><span class="song-name">Bang Jono</span></div>
+        <div class="song-item"><span class="song-num">42</span><div class="song-dot"></div><span class="song-name">Buruh Tani</span></div>
+      </div>
+    </div>
+
+    <div class="section glass-subtle">
+      <div class="section-head">
+        <div class="section-left"><div class="section-icon">🎵</div><span class="section-name">OKDJ</span></div>
+        <span class="section-count">2 lagu</span>
+      </div>
+      <div class="song-grid">
+        <div class="song-item"><span class="song-num">01</span><div class="song-dot"></div><span class="song-name">Bukit Berbunga</span></div>
+        <div class="song-item"><span class="song-num">02</span><div class="song-dot"></div><span class="song-name">Cundamani</span></div>
+      </div>
+    </div>
+
+    <div class="section glass-subtle">
+      <div class="section-head">
+        <div class="section-left"><div class="section-icon">🎵</div><span class="section-name">Sinyo</span></div>
+        <span class="section-count">3 lagu</span>
+      </div>
+      <div class="song-grid">
+        <div class="song-item"><span class="song-num">01</span><div class="song-dot"></div><span class="song-name">DJ Lulo</span></div>
+        <div class="song-item"><span class="song-num">02</span><div class="song-dot"></div><span class="song-name">Tembak Langit</span></div>
+        <div class="song-item"><span class="song-num">03</span><div class="song-dot"></div><span class="song-name">DJ Guuga</span></div>
+      </div>
+    </div>
+
+    <div class="section glass-subtle">
+      <div class="section-head">
+        <div class="section-left"><div class="section-icon">🎵</div><span class="section-name">Zeta</span></div>
+        <span class="section-count">3 lagu</span>
+      </div>
+      <div class="song-grid">
+        <div class="song-item"><span class="song-num">01</span><div class="song-dot"></div><span class="song-name">Cari Jodoh</span></div>
+        <div class="song-item"><span class="song-num">02</span><div class="song-dot"></div><span class="song-name">Dibatas Kota Ini</span></div>
+        <div class="song-item"><span class="song-num">03</span><div class="song-dot"></div><span class="song-name">Yank</span></div>
+      </div>
+    </div>
+
+    <div class="section glass-subtle">
+      <div class="section-head">
+        <div class="section-left"><div class="section-icon">🎵</div><span class="section-name">Kingbobs</span></div>
+        <span class="section-count">1 lagu</span>
+      </div>
+      <div class="song-grid">
+        <div class="song-item"><span class="song-num">01</span><div class="song-dot"></div><span class="song-name">Parfumu Dari Paris</span></div>
+      </div>
+    </div>
+
+    <div class="section glass-subtle">
+      <div class="section-head">
+        <div class="section-left"><div class="section-icon">🎵</div><span class="section-name">Nada Random</span></div>
+        <span class="section-count">12 lagu</span>
+      </div>
+      <div class="song-grid">
+        <div class="song-item"><span class="song-num">01</span><div class="song-dot"></div><span class="song-name">Cintaku Tak Terbatas Waktu</span></div>
+        <div class="song-item"><span class="song-num">02</span><div class="song-dot"></div><span class="song-name">Sonia X Bukit Berbunga</span></div>
+        <div class="song-item"><span class="song-num">03</span><div class="song-dot"></div><span class="song-name">Mangu</span></div>
+        <div class="song-item"><span class="song-num">04</span><div class="song-dot"></div><span class="song-name">Tabola Bale</span></div>
+        <div class="song-item"><span class="song-num">05</span><div class="song-dot"></div><span class="song-name">Janda Bodong</span></div>
+        <div class="song-item"><span class="song-num">06</span><div class="song-dot"></div><span class="song-name">Jika Itu Yang Terbaik</span></div>
+        <div class="song-item"><span class="song-num">07</span><div class="song-dot"></div><span class="song-name">Ngga Dulu</span></div>
+        <div class="song-item"><span class="song-num">08</span><div class="song-dot"></div><span class="song-name">Ngamen 4</span></div>
+        <div class="song-item"><span class="song-num">09</span><div class="song-dot"></div><span class="song-name">Ngapain Repot</span></div>
+        <div class="song-item"><span class="song-num">10</span><div class="song-dot"></div><span class="song-name">Orang Baru Lebeh Gacor</span></div>
+        <div class="song-item"><span class="song-num">11</span><div class="song-dot"></div><span class="song-name">Papa Liat Aku Bernyanyi</span></div>
+        <div class="song-item"><span class="song-num">12</span><div class="song-dot"></div><span class="song-name">Ropang</span></div>
+        <div class="song-item"><span class="song-num">13</span><div class="song-dot"></div><span class="song-name">Taragak Pulang</span></div>
+        <div class="song-item"><span class="song-num">14</span><div class="song-dot"></div><span class="song-name">Sonia X Bahtera X Bukber</span></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <span class="footer-brand">BSRP Mods Collection</span>
+    <span class="footer-sub">Euro Truck Simulator 2 · Nocturnalize X BSRP Mods</span>
+  </footer>
+</div>
+
+<script>
+const packStats = {
+  p36: { songs: 74, modules: 2 },
+  p24: { songs: 72, modules: 3 },
+  p18: { songs: 40, modules: 2 },
+  p12: { songs: 65, modules: 1 }
+};
+
+// Tab switching
+document.querySelectorAll('.pack-tab').forEach(tab => {
+  tab.addEventListener('click', function() {
+    const pack = this.dataset.pack;
+    document.querySelectorAll('.pack-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.pack-panel').forEach(p => p.classList.remove('active'));
+    this.classList.add('active');
+    document.getElementById(pack).classList.add('active');
+    document.getElementById('stat-songs').textContent = packStats[pack].songs;
+    document.getElementById('stat-modules').textContent = packStats[pack].modules;
+    document.getElementById('searchBox').value = '';
+    document.querySelectorAll('#' + pack + ' .song-item').forEach(s => s.style.display = '');
+  });
+});
+
+// Search (only active panel)
+document.getElementById('searchBox').addEventListener('keyup', function() {
+  const kw = this.value.toLowerCase();
+  const activePanel = document.querySelector('.pack-panel.active');
+  activePanel.querySelectorAll('.song-item').forEach(song => {
+    song.style.display = song.innerText.toLowerCase().includes(kw) ? 'flex' : 'none';
+  });
+});
+
+// Toggle select
+document.querySelectorAll('.song-item:not(.module-link)').forEach(item => {
+  item.addEventListener('click', function() {
+    this.classList.toggle('selected');
+  });
+});
+
+// Scroll to section
+function scrollTo(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+</script>
+</body>
+</html>
