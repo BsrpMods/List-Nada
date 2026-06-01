@@ -860,7 +860,8 @@ document.querySelectorAll('.song-item').forEach(item => {
       ws.send('TOGGLE_N');
      
       if (navigator.vibrate) {
-          navigator.vibrate([30, 50, 30]);
+          navigator.vibrate(35);
+      }
     }
   });
 });
