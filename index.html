@@ -858,6 +858,8 @@ document.querySelectorAll('.song-item').forEach(item => {
 
     if (ws && ws.readyState === WebSocket.OPEN) {
       ws.send('TOGGLE_N');
+     if (navigator.vibrate) {
+    navigator.vibrate(35);
     }
   });
 });
